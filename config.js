@@ -2,7 +2,7 @@
 // 💝 CUSTOMIZE YOUR VALENTINE'S WEBSITE HERE 💝
 // ============================================
 
-window.VALENTINE_CONFIG = { ... }
+window.VALENTINE_CONFIG = {
     // Your Valentine's name that will appear in the title
     // Example: "Jade", "Sarah", "Mike"
     valentineName: "Mana❤️",
@@ -33,24 +33,23 @@ window.VALENTINE_CONFIG = { ... }
             nextBtn: "Next ❤️"                                         // Text for the next button
         },
         third: {
-  text: "Will you be my Valentine on February 14th, 2025? 🌹",
-  yesBtn: "YES! 💚",
-  noBtn: "No 💔",
+            text: "Will you be my Valentine on February 14th, 2025? 🌹",
+            yesBtn: "YES! 💚",
+            noBtn: "No 💔",
 
-  // NEW: NO button phrases (changes each click)
-  noPhrases: [
-    "Are you sure? 😳",
-    "You’re kidding me… 🥺",
-    "Think again, dear 💞",
-    "Oh no way u cant keep click this?! 😤",
-    "Okay please say yesss! 😭💚"
-  ],
+            // NEW: NO button phrases (changes each click)
+            noPhrases: [
+                "Are you sure? 😳",
+                "You’re kidding me… 🥺",
+                "Think again, dear 💞",
+                "Oh no way u cant keep click this?! 😤",
+                "Okay please say yesss! 😭💚"
+            ],
 
-  // NEW: YES grows each time NO is clicked (until phrases finish)
-  yesGrowStep: 0.18,
-  yesMaxScale: 2.2
-}
-``
+            // NEW: YES grows each time NO is clicked (until phrases finish)
+            yesGrowStep: 0.18,
+            yesMaxScale: 2.2
+        }
     },
 
     // Love meter messages
@@ -98,6 +97,3 @@ window.VALENTINE_CONFIG = { ... }
         volume: 0.5                        // Volume level (0.0 to 1.0)
     }
 };
-
-// Don't modify anything below this line unless you know what you're doing
-window.VALENTINE_CONFIG = CONFIG; 
