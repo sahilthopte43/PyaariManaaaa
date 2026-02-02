@@ -2,7 +2,7 @@
 // 💝 CUSTOMIZE YOUR VALENTINE'S WEBSITE HERE 💝
 // ============================================
 
-const CONFIG = {
+window.VALENTINE_CONFIG = { ... }
     // Your Valentine's name that will appear in the title
     // Example: "Jade", "Sarah", "Mike"
     valentineName: "Mana❤️",
