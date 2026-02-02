@@ -70,3 +70,225 @@ window.addEventListener('DOMContentLoaded', () => {
     // Set second question texts
     document.getElementById('question2Text').textContent = config.questions.second.text;
     document.getElementById('startText').textContent = config.questions.second.startText;
+    document.getElementById('nextBtn').textContent = config.questions.second.nextBtn;
+
+    // Set third question texts
+    document.getElementById('question3Text').textContent = config.questions.third.text;
+    document.getElementById('yesBtn3').textContent = config.questions.third.yesBtn;
+    document.getElementById('noBtn3').textContent = config.questions.third.noBtn;
+
+    // Create initial floating elements
+    createFloatingElements();
+
+    // Setup music player
+    setupMusicPlayer();
+
+    // ✅ NEW: Upgrade Question 3 behavior (NO phrases + YES grows + red/green)
+    setupQuestion3NoYes();
+});
+
+// Create floating hearts and bears
+function createFloatingElements() {
+    const container = document.querySelector('.floating-elements');
+
+    // Create hearts
+    config.floatingEmojis.hearts.forEach(heart => {
+        const div = document.createElement('div');
+        div.className = 'heart';
+        div.innerHTML = heart;
+        setRandomPosition(div);
+        container.appendChild(div);
+    });
+
+    // Create bears
+    config.floatingEmojis.bears.forEach(bear => {
+        const div = document.createElement('div');
+        div.className = 'bear';
+        div.innerHTML = bear;
+        setRandomPosition(div);
+        container.appendChild(div);
+    });
+}
+
+// Set random position for floating elements
+function setRandomPosition(element) {
+    element.style.left = Math.random() * 100 + 'vw';
+    element.style.animationDelay = Math.random() * 5 + 's';
+    element.style.animationDuration = 10 + Math.random() * 20 + 's';
+}
+
+// Function to show next question
+function showNextQuestion(questionNumber) {
+    document.querySelectorAll('.question-section').forEach(q => q.classList.add('hidden'));
+    document.getElementById(`question${questionNumber}`).classList.remove('hidden');
+}
+
+// Function to move the "No" button when clicked
+function moveButton(button) {
+    const x = Math.random() * (window.innerWidth - button.offsetWidth);
+    const y = Math.random() * (window.innerHeight - button.offsetHeight);
+    button.style.position = 'fixed';
+    button.style.left = x + 'px';
+    button.style.top = y + 'px';
+}
+
+// Love meter functionality
+const loveMeter = document.getElementById('loveMeter');
+const loveValue = document.getElementById('loveValue');
+const extraLove = document.getElementById('extraLove');
+
+function setInitialPosition() {
+    loveMeter.value = 100;
+    loveValue.textContent = 100;
+    loveMeter.style.width = '100%';
+}
+
+loveMeter.addEventListener('input', () => {
+    const value = parseInt(loveMeter.value);
+    loveValue.textContent = value;
+
+    if (value > 100) {
+        extraLove.classList.remove('hidden');
+        const overflowPercentage = (value - 100) / 9900;
+        const extraWidth = overflowPercentage * window.innerWidth * 0.8;
+        loveMeter.style.width = `calc(100% + ${extraWidth}px)`;
+        loveMeter.style.transition = 'width 0.3s';
+
+        // Show different messages based on the value
+        if (value >= 5000) {
+            extraLove.classList.add('super-love');
+            extraLove.textContent = config.loveMessages.extreme;
+        } else if (value > 1000) {
+            extraLove.classList.remove('super-love');
+            extraLove.textContent = config.loveMessages.high;
+        } else {
+            extraLove.classList.remove('super-love');
+            extraLove.textContent = config.loveMessages.normal;
+        }
+    } else {
+        extraLove.classList.add('hidden');
+        extraLove.classList.remove('super-love');
+        loveMeter.style.width = '100%';
+    }
+});
+
+// Initialize love meter
+window.addEventListener('DOMContentLoaded', setInitialPosition);
+window.addEventListener('load', setInitialPosition);
+
+// Celebration function
+function celebrate() {
+    document.querySelectorAll('.question-section').forEach(q => q.classList.add('hidden'));
+    const celebration = document.getElementById('celebration');
+    celebration.classList.remove('hidden');
+
+    // Set celebration messages
+    document.getElementById('celebrationTitle').textContent = config.celebration.title;
+    document.getElementById('celebrationMessage').textContent = config.celebration.message;
+    document.getElementById('celebrationEmojis').textContent = config.celebration.emojis;
+
+    // Create heart explosion effect
+    createHeartExplosion();
+}
+
+// Create heart explosion animation
+function createHeartExplosion() {
+    for (let i = 0; i < 50; i++) {
+        const heart = document.createElement('div');
+        const randomHeart = config.floatingEmojis.hearts[Math.floor(Math.random() * config.floatingEmojis.hearts.length)];
+        heart.innerHTML = randomHeart;
+        heart.className = 'heart';
+        document.querySelector('.floating-elements').appendChild(heart);
+        setRandomPosition(heart);
+    }
+}
+
+/* =========================================================
+   ✅ ADDED HERE: Question 3 behavior function (THIS WAS MISSING)
+   - NO turns red, YES turns green
+   - Each NO click changes text (noPhrases)
+   - Each NO click grows YES until phrases finish
+   ========================================================= */
+function setupQuestion3NoYes() {
+    const yesBtn = document.getElementById('yesBtn3');
+    const noBtn = document.getElementById('noBtn3');
+
+    // If Q3 buttons are not on the page, exit safely
+    if (!yesBtn || !noBtn) return;
+
+    // Avoid duplicate listeners
+    if (noBtn.dataset.q3SetupDone === "1") return;
+    noBtn.dataset.q3SetupDone = "1";
+
+    // Colors
+    yesBtn.style.backgroundColor = "#2ecc71"; // green
+    yesBtn.style.color = "white";
+    yesBtn.style.transition = "transform 250ms ease";
+
+    noBtn.style.backgroundColor = "#ff3b3b";  // red
+    noBtn.style.color = "white";
+
+    // Read settings from config (make sure you added these in configure.js)
+    const phrases = config.questions.third.noPhrases || [];
+    const step = config.questions.third.yesGrowStep ?? 0.18;
+    const maxScale = config.questions.third.yesMaxScale ?? 2.2;
+
+    let idx = 0;
+    let scale = 1;
+
+    noBtn.addEventListener('click', () => {
+        // Change NO text until phrases finish
+        if (idx < phrases.length) {
+            noBtn.textContent = phrases[idx];
+            idx++;
+        }
+
+        // Grow YES only while phrases are being used
+        if (idx <= phrases.length) {
+            scale = Math.min(maxScale, scale + step);
+            yesBtn.style.transform = `scale(${scale})`;
+        }
+    });
+}
+
+// Music Player Setup
+function setupMusicPlayer() {
+    const musicControls = document.getElementById('musicControls');
+    const musicToggle = document.getElementById('musicToggle');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicSource = document.getElementById('musicSource');
+
+    // Only show controls if music is enabled in config
+    if (!config.music.enabled) {
+        musicControls.style.display = 'none';
+        return;
+    }
+
+    // Set music source and volume
+    musicSource.src = config.music.musicUrl;
+    bgMusic.volume = config.music.volume || 0.5;
+    bgMusic.load();
+
+    // Try autoplay if enabled
+    if (config.music.autoplay) {
+        const playPromise = bgMusic.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("Autoplay prevented by browser");
+                musicToggle.textContent = config.music.startText;
+            });
+        }
+    }
+
+    // Toggle music on button click
+    musicToggle.addEventListener('click', () => {
+        if (bgMusic.paused) {
+            bgMusic.play();
+            musicToggle.textContent = config.music.stopText;
+        } else {
+            bgMusic.pause();
+            musicToggle.textContent = config.music.startText;
+        }
+    });
+}
+``
